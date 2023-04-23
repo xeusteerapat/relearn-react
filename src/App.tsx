@@ -30,6 +30,7 @@ function App() {
   );
   const [indeterminate, setIndeterminate] = useState(true);
   const [checkAll, setCheckAll] = useState(true);
+  const [isCompleted, setIsCompleted] = useState(true);
   const [options, dispatch] = useReducer(
     checklistReducer,
     mapLabel(checklistLabel)
@@ -56,6 +57,7 @@ function App() {
     setSelectedOptions(mapLabel(checklistLabel));
     setIndeterminate(false);
     setCheckAll(true);
+    setIsCompleted(true);
   };
 
   const handleApply = () => {
@@ -65,13 +67,30 @@ function App() {
         selectedOptions,
       },
     });
+    setIsModalOpen(false);
   };
 
-  console.log(convertLabelToValue(options));
+  const handleShowComplete = () => {
+    setIsCompleted(!isCompleted);
+  };
 
-  const renderChecklist = defaultChecklist.filter(item => {
-    return convertLabelToValue(options).includes(item.timeBeforeDays);
-  });
+  const renderChecklist = defaultChecklist
+    .filter(item => {
+      return convertLabelToValue(options).includes(item.timeBeforeDays);
+    })
+    .map(item => {
+      const completedTasks = item.planners.filter(planner => !planner.complete);
+
+      if (!isCompleted) {
+        return {
+          ...item,
+          planners: [...completedTasks],
+        };
+      }
+
+      return item;
+    })
+    .filter(item => item.planners.length !== 0);
 
   return (
     <div
@@ -98,6 +117,11 @@ function App() {
           ]}
         >
           <Col>
+            <Row>
+              <Checkbox checked={isCompleted} onChange={handleShowComplete}>
+                Show completed
+              </Checkbox>
+            </Row>
             <Row>
               <Checkbox
                 indeterminate={indeterminate}
