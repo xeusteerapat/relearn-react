@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { defaultChecklist } from './data/checklist';
-import { Modal, Checkbox, Row, Col, Button } from 'antd';
+import { Modal, Checkbox, Row, Col, Button, Collapse } from 'antd';
 import type { CheckboxChangeEvent } from 'antd/es/checkbox';
 import { checklistLabel } from './data/checklist-label';
 import { convertLabelToValue, mapLabel } from './utils/mapLabel';
@@ -142,9 +142,21 @@ function App() {
             </Row>
           </Col>
         </Modal>
-        <code>
-          <pre>{JSON.stringify(renderChecklist, null, 2)}</pre>
-        </code>
+        {/* <pre>{JSON.stringify(renderChecklist, null, 2)}</pre> */}
+        <Collapse accordion>
+          {renderChecklist.map(checklist => (
+            <Collapse.Panel
+              key={checklist.timeBeforeDays}
+              header={`${checklist.timeBefore} months`}
+            >
+              {checklist.planners.map(planner => (
+                <Checkbox key={planner.id} checked={planner.complete}>
+                  {planner.title}
+                </Checkbox>
+              ))}
+            </Collapse.Panel>
+          ))}
+        </Collapse>
       </div>
     </div>
   );
